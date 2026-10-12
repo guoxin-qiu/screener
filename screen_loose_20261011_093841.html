@@ -5,20 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>主板周线共振候选（放宽参数）</title>
 <style>
-  body { font-family: Consolas, "Microsoft YaHei", monospace; margin: 24px; color: #222; background: #fafafa; }
-  h1 { font-size: 20px; }
-  .params { background: #eef3fb; border-left: 4px solid #4a7dbf; padding: 8px 14px; margin: 12px 0 18px; font-size: 13px; line-height: 1.7; }
-  table { border-collapse: collapse; width: 100%; background: #fff; font-size: 13px; }
-  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; }
-  th { background: #f0f4f8; position: sticky; top: 0; }
-  tr.score2 { background: #fff4cc; }
-  td.up { color: #c00; font-weight: bold; }
-  td.down { color: #0a0; }
-  td.muted { color: #999; }
-  footer { margin-top: 16px; color: #888; font-size: 12px; }
+  body{max-width:1100px;margin:0 auto;padding:26px 16px 40px;background:#f5f5f7;color:#1d1d1f;box-sizing:border-box;-webkit-font-smoothing:antialiased;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Segoe UI","Microsoft YaHei",sans-serif;}
+  .back{margin:0 0 6px;font-size:13px;}
+  .back a{color:#0071e3;text-decoration:none;}
+  .back a:hover{text-decoration:underline;}
+  h1{font-size:23px;font-weight:700;letter-spacing:-0.02em;margin:8px 0 14px;}
+  .params{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);padding:16px 20px;margin-bottom:16px;font-size:13.5px;line-height:1.8;color:#424245;}
+  .empty{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);color:#a1002b;padding:16px 20px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);font-size:13px;}
+  th,td{padding:10px 12px;border-bottom:1px solid #ececef;text-align:center;white-space:nowrap;}
+  th{background:#fbfbfd;color:#86868b;font-weight:500;}
+  tr:last-child td{border-bottom:none;}
+  tr.score2{background:#fff8e6;}
+  td.up{color:#ff3b30;font-weight:600;}
+  td.down{color:#34c759;}
+  td.muted{color:#a1a1a6;}
+  footer{margin-top:16px;color:#a1a1a6;font-size:12px;text-align:center;}
+  @media (max-width:520px){
+    body{padding:20px 10px 32px;}
+    th,td{padding:8px;font-size:12px;}
+    h1{font-size:20px;}
+  }
 </style>
 </head>
 <body>
+<div class="back"><a href="index.html">← 返回汇总</a></div>
 <h1>主板周线共振候选（放宽参数筛选）</h1>
 <div class="params">
   <b>本次放宽后的筛选参数：</b>top_n=40、涨幅 -5%~10%、换手率 ≥0.5%、量比 ≥0.3、周线箱体 ≤30%、周线≥12周、
