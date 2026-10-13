@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>记录工具</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: #f5f6fa; padding: 20px; }
+h1 { font-size: 20px; margin-bottom: 12px; }
+
+/* 顶部添加 */
+.top-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.top-bar input { padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; width: 220px; background: #fff; }
+.top-bar button { padding: 8px 14px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; color: #555; cursor: pointer; font-size: 14px; }
+.top-bar button:hover { background: #f0f0f0; }
+.top-bar .btn-del { background: #fafafa; color: #c76b6b; }
+.top-bar .btn-del:hover { background: #f8ecec; }
+.top-bar .btn-export { background: #fafafa; color: #558a6a; }
+.top-bar .btn-export:hover { background: #ecf2ee; }
+
+/* 试算器 */
+.calc-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; background: #fff; border-radius: 8px; padding: 10px 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.calc-bar .cap { font-size: 13px; color: #888; }
+.calc-bar label { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #666; }
+.calc-bar input { width: 96px; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; text-align: right; }
+.calc-bar .result { font-size: 14px; margin-left: auto; }
+.calc-bar .result b { font-size: 16px; }
+
+/* Tab 栏 */
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 6px 6px 0 0; background: #fff; cursor: pointer; font-size: 14px; color: #666; }
+.tab-btn.active { background: #eef4ee; color: #4a7a54; border-color: #cfddd0; }
+
+/* 表格区域 */
+.panel { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.panel h3 { font-size: 15px; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border: 1px solid #e0e0e0; padding: 6px 8px; text-align: center; }
+th { background: #f0f2f5; }
+td input, td select { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 4px 6px; font-size: 13px; }
+td input[type="number"] { text-align: right; }
+.row-buy { background: #f4faf4; }
+.row-sell { background: #fdf6f4; }
+.btn-add { padding: 6px 12px; border: 1px solid #d5d5d5; border-radius: 6px; background: #fafafa; color: #577360; cursor: pointer; font-size: 13px; margin-bottom: 10px; }
+.btn-add:hover { background: #eef2ee; }
+.btn-sm { padding: 3px 8px; font-size: 12px; border: 1px solid #e0e0e0; border-radius: 4px; cursor: pointer; background: #fafafa; color: #c76b6b; }
+.btn-sm.del { background: #fafafa; color: #c76b6b; }
+.btn-sm.del:hover { background: #f8ecec; }
+.btn-sm.link { background: #fafafa; color: #8a6ab0; }
+.btn-sm.link:hover { background: #f1ecf6; }
+.btn-sm.unlink { background: #fafafa; color: #8a8a8a; }
+.btn-sm.unlink:hover { background: #f0f0f0; }
+
+/* 模式切换与紧凑列表（手机端使用） */
+.mode-toggle { display: none; margin-left: 10px; }
+.add-btns { display: block; }
+.add-btns.hidden { display: none; }
+.record-item { display: flex; align-items: center; gap: 6px; padding: 8px 4px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.record-item .tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; }
+.record-item .tag.buy { background: #eef4ee; color: #4a7a54; }
+.record-item .tag.sell { background: #fdf0ee; color: #b5675f; }
+.record-item .main { flex: 1; min-width: 0; line-height: 1.4; }
+.record-item .main .t1 { font-size: 13px; color: #333; }
+.record-item .main .t2 { font-size: 11px; color: #999; }
+.record-item .value { text-align: right; flex-shrink: 0; }
+.record-item .value .v { font-size: 14px; font-weight: bold; }
+.record-item .value .lbl { font-size: 11px; color: #999; }
+.record-item .btn-sm { flex-shrink: 0; }
+.record-item .btn-sm.edit:hover { background: #ecf2ee; color: #4a7a54; }
+.record-item .btn-sm.edit { color: #558a6a; }
+.row-edit-target { outline: 2px solid #8fbf9a; outline-offset: -2px; }
+
+/* 统计 */
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.stat-card { background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.stat-card .label { font-size: 12px; color: #888; }
+.stat-card .value { font-size: 18px; font-weight: bold; margin-top: 4px; }
+.positive { color: #c76b6b; }
+.negative { color: #558a6a; }
+
+#chart { width: 100%; height: 520px; }
+@media (max-width: 768px) { #chart { height: 460px; } }
+
+/* 图表工具条 */
+.chart-tools { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; }
+.seg-btn { border: 0; background: #fafafa; color: #666; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+.seg-btn + .seg-btn { border-left: 1px solid #ececec; }
+.seg-btn.active { background: #eef4ee; color: #4a7a54; }
+.chart-hint { font-weight: normal; color: #999; font-size: 12px; }
+
+/* 表格：价格/数量 列可容纳约10个数字，利润列保持窄 */
+#recordTable th:nth-child(3),
+#recordTable th:nth-child(4) { width: 8%; }
+#recordTable th:nth-child(5) { width: 5%; }
+#recordTable td:nth-child(3),
+#recordTable td:nth-child(4) { width: 8%; }
+#recordTable td:nth-child(5) { width: 5%; }
+#recordTable td:nth-child(3) input,
+#recordTable td:nth-child(4) input,
+#recordTable td:nth-child(5) input { min-width: 88px; box-sizing: border-box; }
+#recordTable td:nth-child(5) input { min-width: 72px; }
+
+/* ===== 手机端适配：表格转为卡片堆叠布局 ===== */
+@media (max-width: 768px) {
+  body { padding: 10px 8px; }
+  h1 { font-size: 17px; }
+  .top-bar input { width: 100%; }
+  .top-bar button { flex: 1 1 auto; }
+  .panel { padding: 12px; }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+  .mode-toggle { display: inline-block; float: right; font-size: 12px; padding: 4px 12px; border: 1px solid #e0e0e0; border-radius: 14px; background: #fafafa; color: #556; cursor: pointer; }
+  .mode-toggle.active { background: #eef4ee; color: #4a7a54; border-color: #cfddd0; }
+
+  .record-item .tag { font-size: 10px; }
+  .record-item .main .t1 { font-size: 13px; }
+  .record-item .main .t2 { font-size: 11px; }
+
+  #recordTable,
+  #recordTable tbody,
+  #recordTable tr,
+  #recordTable td {
+    display: block;
+    width: 100%;
+  }
+  #recordTable thead { display: none; } /* 隐藏表头 */
+  #recordTable tr {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+  #recordTable td {
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  #recordTable td::before { /* 字段标签 */
+    content: attr(data-label);
+    font-size: 11px;
+    color: #999;
+  }
+  #recordTable td input,
+  #recordTable td select {
+    font-size: 14px; /* 避免 iOS 缩放 16px 以下 */
+    min-height: 34px;
+    padding: 5px 8px;
+  }
+  #recordTable td[data-full] {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #recordTable td[data-full]::before { flex: 1; }
+}
+</style>
+</head>
+<body>
+
+<h1>📈 记录工具</h1>
+
+<div class="top-bar">
+  <input id="stockInput" placeholder="输入代码或名称" />
+  <button onclick="addStock()">添加</button>
+  <button class="btn-del" onclick="deleteCurrentStock()">删除</button>
+  <button class="btn-export" onclick="showJsonPanel()">导入/导出</button>
+</div>
+
+<div class="calc-bar">
+  <span class="cap">试算</span>
+  <label>买入价<input id="calcBuy" type="number" step="0.001" min="0" /></label>
+  <label>卖出价<input id="calcSell" type="number" step="0.001" min="0" /></label>
+  <label>数量<input id="calcQty" type="number" step="1" min="0" /></label>
+  <span class="result" id="calcResult">盈亏 -</span>
+</div>
+
+<div class="panel" id="jsonPanel" style="display:none">
+  <h3>JSON 数据 <small style="font-weight:normal;color:#999">（在此文本框直接查看或编辑）</small></h3>
+  <textarea id="jsonArea" rows="10" spellcheck="false" style="width:100%;border:1px solid #e0e0e0;border-radius:6px;padding:8px;font-size:13px;font-family:Consolas,Menlo,monospace;line-height:1.5"></textarea>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn-export" onclick="loadJsonIntoTextarea()">导出到文本框</button>
+    <button class="btn-export" onclick="importFromTextarea()">从文本框导入</button>
+    <button class="btn-export" onclick="clearJsonArea()">清空</button>
+    <button class="btn-export" onclick="selectJsonArea()">全选</button>
+  </div>
+</div>
+
+<div class="tabs" id="tabBar"></div>
+
+<div id="content">
+  <div class="panel">
+    <h3>交易记录 <span class="mode-toggle" id="modeToggle"></span></h3>
+    <div class="add-btns">
+      <button class="btn-add" onclick="addRecord('buy')">+ 买入</button>
+      <button class="btn-add" onclick="addRecord('sell')" style="color:#b5675f">+ 卖出</button>
+    </div>
+    <div id="recordList" style="display:none"></div>
+    <table id="recordTable">
+      <thead>
+        <tr>
+          <th>类型</th><th>日期</th><th>价格</th><th>数量</th>
+          <th>利润%</th><th>目标卖出价</th><th>关联买入</th><th>实际盈亏</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="recordBody"></tbody>
+    </table>
+  </div>
+
+  <div class="stats" id="statsArea"></div>
+
+  <div class="panel">
+    <h3>买卖价格图 <small class="chart-hint">淡色柱＝数量，虚线＝目标卖出价，下方柱＝已平仓回合盈亏，拖动底部滑块可缩放</small></h3>
+    <div class="chart-tools">
+      <div class="seg" id="grainSeg"></div>
+      <div class="seg" id="rangeSeg"></div>
+    </div>
+    <div id="chart"></div>
+  </div>
+</div>
+
+<script>
+const COMMISSION = 5; // 单边固定佣金
+const ROUND_TRIP = COMMISSION * 2; // 买卖合计10元
+
+let stocks = JSON.parse(localStorage.getItem('t_records') || '{}');
+let currentStock = null;
+let chart = null;
+let recordMode = 'view'; // 手机端：'view' 紧凑列表 / 'edit' 卡片填写
+
+let chartGrain = 'day'; // 图表聚合粒度：day / week / month
+let chartRange = 'all'; // 时间窗：1m / 3m / 6m / all
+const CHART_GRAINS = [['day', '日'], ['week', '周'], ['month', '月']];
+const CHART_RANGES = [['1m', '近1月', 30], ['3m', '近3月', 90], ['6m', '半年', 180], ['all', '全部', 0]];
+let editTargetId = null; // 点击编辑后需高亮定位的记录 id
+
+function save() {
+  localStorage.setItem('t_records', JSON.stringify(stocks));
+}
+
+function stockKeys() { return Object.keys(stocks); }
+
+function renderTabs() {
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = '';
+  stockKeys().forEach(k => {
+    const btn = document.createElement('div');
+    btn.className = 'tab-btn' + (k === currentStock ? ' active' : '');
+    btn.innerHTML = k;
+    btn.onclick = () => switchStock(k);
+    bar.appendChild(btn);
+  });
+}
+
+function addStock() {
+  const input = document.getElementById('stockInput');
+  const name = input.value.trim();
+  if (!name) return alert('请输入代码或名称');
+  if (stocks[name]) return alert('该代码或名称已存在');
+  stocks[name] = { records: [] };
+  save();
+  currentStock = name;
+  input.value = '';
+  renderTabs();
+  render();
+}
+
+function removeStock(name) {
+  if (!confirm('确定删除 ' + name + ' 的所有记录？')) return;
+  delete stocks[name];
+  save();
+  if (currentStock === name) {
+    currentStock = stockKeys()[0] || null;
+  }
+  renderTabs();
+  render();
+}
+
+function deleteCurrentStock() {
+  if (!currentStock) return alert('请先选择一个代码或名称');
+  removeStock(currentStock);
+}
+
+function switchStock(name) {
+  currentStock = name;
+  renderTabs();
+  render();
+}
+
+function getRecords() {
+  return currentStock ? stocks[currentStock].records : [];
+}
+
+function addRecord(type) {
+  if (!currentStock) return alert('请先添加或选择一个代码或名称');
+  const records = getRecords();
+  const today = new Date().toISOString().slice(0, 10);
+  records.push({ id: Date.now(), type, date: today, price: '', shares: '', profit: '', linkId: '' });
+  save();
+  if (window.innerWidth <= 768) recordMode = 'edit';
+  render();
+}
+
+function deleteRecord(id) {
+  const records = getRecords();
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  const tip = (r.type === 'buy' ? '买入' : '卖出') + ' ' + (r.date || '') + ' ¥' + (r.price || '-') + ' × ' + (r.shares || '-');
+  if (!confirm('确定删除这条记录？\n' + tip)) return;
+  const idx = records.indexOf(r);
+  if (idx >= 0) records.splice(idx, 1);
+  // 清除指向该记录的关联
+  records.forEach(x => { if (x.linkId == id) x.linkId = ''; });
+  save();
+  render();
+}
+
+function updateRecord(id, field, value) {
+  const records = getRecords();
+  const r = records.find(x => x.id === id);
+  if (r) { r[field] = value; save(); render(); }
+}
+
+function targetSellPrice(buyPrice, profitPct) {
+  const p = parseFloat(buyPrice);
+  const pct = parseFloat(profitPct);
+  if (isNaN(p) || isNaN(pct)) return '';
+  // 目标卖出价 = (买入总价 + 往返佣金10元) / (1 - 利润率) / 数量，这里按单价算，数量在行内动态取
+  // 简化：先按单价算，数量在计算实际盈亏时再精确处理
+  // 目标单价 = (买入单价 + 往返佣金/数量) / (1 - 利润率)
+  return ''; // 在渲染时动态计算，因为需要数量
+}
+
+function calcTargetPrice(r, records) {
+  if (r.type !== 'buy') return '';
+  const price = parseFloat(r.price);
+  const profit = parseFloat(r.profit);
+  const shares = parseFloat(r.shares);
+  if (isNaN(price) || isNaN(profit) || isNaN(shares) || shares === 0) return '';
+  // 目标卖出总价 = 买入总价 + 往返佣金 + 买入总价*利润率
+  // 即: targetTotal = price*shares*(1+profit/100) + ROUND_TRIP
+  // targetPrice = targetTotal / shares
+  const targetTotal = price * shares * (1 + profit / 100) + ROUND_TRIP;
+  return (targetTotal / shares).toFixed(3);
+}
+
+function calcActualProfit(sellRec, buyRec, records) {
+  if (!sellRec || !buyRec) return '';
+  const sPrice = parseFloat(sellRec.price);
+  const sShares = parseFloat(sellRec.shares);
+  const bPrice = parseFloat(buyRec.price);
+  const bShares = parseFloat(buyRec.shares);
+  if (isNaN(sPrice) || isNaN(sShares) || isNaN(bPrice) || isNaN(bShares)) return '';
+  const matchedShares = Math.min(sShares, bShares);
+  if (matchedShares <= 0) return '';
+  // 盈亏 = (卖出价 - 买入价) * 匹配数量 - 往返佣金
+  const profit = (sPrice - bPrice) * matchedShares - ROUND_TRIP;
+  return profit.toFixed(2);
+}
+
+function calcProfitPct(sellRec, buyRec, records) {
+  // 已关联卖出的收益率 = 盈亏 / 匹配买入成本 * 100
+  if (!sellRec || !buyRec) return '';
+  const sPrice = parseFloat(sellRec.price);
+  const sShares = parseFloat(sellRec.shares);
+  const bPrice = parseFloat(buyRec.price);
+  const bShares = parseFloat(buyRec.shares);
+  if (isNaN(sPrice) || isNaN(sShares) || isNaN(bPrice) || isNaN(bShares)) return '';
+  const matchedShares = Math.min(sShares, bShares);
+  if (matchedShares <= 0) return '';
+  const profit = (sPrice - bPrice) * matchedShares - ROUND_TRIP;
+  const cost = bPrice * matchedShares;
+  if (cost <= 0) return '';
+  return (profit / cost * 100).toFixed(2);
+}
+
+function renderModeToggle() {
+  const el = document.getElementById('modeToggle');
+  if (!el) return;
+  el.textContent = recordMode === 'view' ? '填写' : '查看';
+  el.className = 'mode-toggle' + (recordMode === 'edit' ? ' active' : '');
+}
+
+function setRecordMode(mode) {
+  recordMode = mode;
+  render();
+}
+
+function editRecord(id) {
+  editTargetId = id;
+  if (window.innerWidth <= 768) {
+    setRecordMode('edit');
+  } else {
+    render();
+  }
+  // 渲染后定位到目标记录
+  requestAnimationFrame(() => {
+    const tr = document.querySelector('#recordBody tr[data-rid="' + id + '"]');
+    if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+
+function render() {
+  const records = getRecords();
+  const isMobile = window.innerWidth <= 768;
+
+  const list = document.getElementById('recordList');
+  const table = document.getElementById('recordTable');
+  const addBtns = document.querySelector('.add-btns');
+
+  if (isMobile && recordMode === 'view') {
+    list.style.display = 'block';
+    table.style.display = 'none';
+    if (addBtns) addBtns.classList.add('hidden');
+    renderViewList(records);
+  } else {
+    list.style.display = 'none';
+    table.style.display = 'table';
+    if (addBtns) addBtns.classList.remove('hidden');
+    renderEditTable(records);
+  }
+
+  renderModeToggle();
+  renderStats(records);
+  renderChart(records);
+  editTargetId = null; // 高亮一次性，避免后续重新渲染持续高亮
+}
+
+function renderViewList(records) {
+  const list = document.getElementById('recordList');
+  list.innerHTML = '';
+
+  if (!records.length) {
+    list.innerHTML = '<div style="color:#999;padding:12px;text-align:center;font-size:13px">暂无记录</div>';
+    return;
+  }
+
+  records.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'record-item';
+    item.setAttribute('data-type', r.type);
+
+    const tag = document.createElement('span');
+    tag.className = 'tag ' + r.type;
+    tag.textContent = r.type === 'buy' ? '买' : '卖';
+    item.appendChild(tag);
+
+    const main = document.createElement('div');
+    main.className = 'main';
+    const t1 = document.createElement('div');
+    t1.className = 't1';
+    const price = r.price || '-';
+    const shares = r.shares || '-';
+    t1.textContent = '¥' + price + ' × ' + shares;
+    const t2 = document.createElement('div');
+    t2.className = 't2';
+    const dateShort = (r.date || '').slice(5); // MM-DD
+    if (r.type === 'buy') {
+      const target = calcTargetPrice(r, records);
+      const profit = (r.profit === undefined || r.profit === '') ? '-' : r.profit + '%';
+      t2.textContent = dateShort + ' · 目标' + (target ? ' ¥' + target : ' -') + ' · ' + profit;
+    } else {
+      t2.textContent = dateShort + (r.linkId ? ' · 已关联' : ' · 未关联');
+    }
+    main.appendChild(t1);
+    main.appendChild(t2);
+    item.appendChild(main);
+
+    const value = document.createElement('div');
+    value.className = 'value';
+    if (r.type === 'sell') {
+      const buyRec = records.find(x => x.id == r.linkId);
+      const val = calcActualProfit(r, buyRec, records);
+      if (val !== '') {
+        const pct = calcProfitPct(r, buyRec, records);
+        const v = document.createElement('div');
+        v.className = 'v ' + (parseFloat(val) >= 0 ? 'positive' : 'negative');
+        const sign = pct !== '' ? (parseFloat(pct) >= 0 ? '+' : '') : '';
+        v.textContent = val + (pct !== '' ? ' (' + sign + pct + '%)' : '');
+        value.appendChild(v);
+        const lbl = document.createElement('div');
+        lbl.className = 'lbl';
+        lbl.textContent = '盈亏';
+        value.appendChild(lbl);
+      }
+    }
+    item.appendChild(value);
+
+    const btnDel = document.createElement('button');
+    btnDel.className = 'btn-sm del';
+    btnDel.textContent = '删';
+    btnDel.onclick = () => deleteRecord(r.id);
+    item.appendChild(btnDel);
+
+    const btnEdit = document.createElement('button');
+    btnEdit.className = 'btn-sm edit';
+    btnEdit.textContent = '编辑';
+    btnEdit.onclick = () => editRecord(r.id);
+    item.appendChild(btnEdit);
+
+    list.appendChild(item);
+  });
+}
+
+function renderEditTable(records) {
+  const tbody = document.getElementById('recordBody');
+  tbody.innerHTML = '';
+
+  records.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = r.type === 'buy' ? 'row-buy' : 'row-sell';
+    tr.setAttribute('data-rid', r.id);
+    if (editTargetId === r.id) tr.classList.add('row-edit-target');
+
+    // 类型
+    const tdType = document.createElement('td');
+    tdType.setAttribute('data-label', '类型');
+    tdType.textContent = r.type === 'buy' ? '买入' : '卖出';
+    tr.appendChild(tdType);
+
+    // 日期
+    const tdDate = document.createElement('td');
+    tdDate.setAttribute('data-label', '日期');
+    const inpDate = document.createElement('input');
+    inpDate.type = 'date';
+    inpDate.value = r.date;
+    inpDate.onchange = () => updateRecord(r.id, 'date', inpDate.value);
+    tdDate.appendChild(inpDate);
+    tr.appendChild(tdDate);
+
+    // 价格
+    const tdPrice = document.createElement('td');
+    tdPrice.setAttribute('data-label', '价格');
+    const inpPrice = document.createElement('input');
+    inpPrice.type = 'number';
+    inpPrice.step = '0.001';
+    inpPrice.value = r.price;
+    inpPrice.onchange = () => updateRecord(r.id, 'price', inpPrice.value);
+    tdPrice.appendChild(inpPrice);
+    tr.appendChild(tdPrice);
+
+    // 数量
+    const tdShares = document.createElement('td');
+    tdShares.setAttribute('data-label', '数量');
+    const inpShares = document.createElement('input');
+    inpShares.type = 'number';
+    inpShares.step = '100';
+    inpShares.value = r.shares;
+    inpShares.onchange = () => updateRecord(r.id, 'shares', inpShares.value);
+    tdShares.appendChild(inpShares);
+    tr.appendChild(tdShares);
+
+    // 利润%
+    const tdProfit = document.createElement('td');
+    tdProfit.setAttribute('data-label', '利润%');
+    if (r.type === 'buy') {
+      const inpProfit = document.createElement('input');
+      inpProfit.type = 'number';
+      inpProfit.step = '0.1';
+      inpProfit.value = r.profit;
+      inpProfit.onchange = () => updateRecord(r.id, 'profit', inpProfit.value);
+      tdProfit.appendChild(inpProfit);
+    } else {
+      tdProfit.textContent = '-';
+    }
+    tr.appendChild(tdProfit);
+
+    // 目标卖出价
+    const tdTarget = document.createElement('td');
+    tdTarget.setAttribute('data-label', '目标卖出价');
+    tdTarget.textContent = r.type === 'buy' ? calcTargetPrice(r, records) : '-';
+    tr.appendChild(tdTarget);
+
+    // 关联买入
+    const tdLink = document.createElement('td');
+    tdLink.setAttribute('data-label', '关联买入');
+    if (r.type === 'sell') {
+      const sel = document.createElement('select');
+      sel.innerHTML = '<option value="">未关联</option>';
+      records.filter(x => x.type === 'buy').forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = b.date + ' ¥' + b.price + ' x' + b.shares;
+        sel.appendChild(opt);
+      });
+      sel.value = r.linkId || '';
+      sel.onchange = () => updateRecord(r.id, 'linkId', sel.value);
+      tdLink.appendChild(sel);
+    } else {
+      tdLink.textContent = '-';
+    }
+    tr.appendChild(tdLink);
+
+    // 实际盈亏
+    const tdActual = document.createElement('td');
+    tdActual.setAttribute('data-label', '实际盈亏');
+    if (r.type === 'sell' && r.linkId) {
+      const buyRec = records.find(x => x.id == r.linkId);
+      const val = calcActualProfit(r, buyRec, records);
+      if (val !== '') {
+        const pct = calcProfitPct(r, buyRec, records);
+        const sign = pct !== '' ? (parseFloat(pct) >= 0 ? '+' : '') : '';
+        tdActual.textContent = val + (pct !== '' ? ' (' + sign + pct + '%)' : '');
+        tdActual.className = parseFloat(val) >= 0 ? 'positive' : 'negative';
+      } else {
+        tdActual.textContent = '-';
+      }
+    } else {
+      tdActual.textContent = '-';
+    }
+    tr.appendChild(tdActual);
+
+// 操作
+    const tdAct = document.createElement('td');
+    tdAct.setAttribute('data-label', '操作');
+    tdAct.setAttribute('data-full', '');
+    const btnEdit2 = document.createElement('button');
+    btnEdit2.className = 'btn-sm edit';
+    btnEdit2.textContent = '编辑';
+    btnEdit2.onclick = () => editRecord(r.id);
+    tdAct.appendChild(btnEdit2);
+    const btnDel = document.createElement('button');
+    btnDel.className = 'btn-sm del';
+    btnDel.textContent = '删除';
+    btnDel.onclick = () => deleteRecord(r.id);
+    tdAct.appendChild(btnDel);
+    tr.appendChild(tdAct);
+
+    tbody.appendChild(tr);
+  });
+
+  renderStats(records);
+  renderChart(records);
+}
+
+function renderStats(records) {
+  const area = document.getElementById('statsArea');
+  const buys = records.filter(r => r.type === 'buy');
+  const sells = records.filter(r => r.type === 'sell');
+  const linkedSells = sells.filter(r => r.linkId);
+
+  let totalBuyCost = 0, totalBuyShares = 0;
+  buys.forEach(r => { const p = parseFloat(r.price); const s = parseFloat(r.shares); if (!isNaN(p) && !isNaN(s)) { totalBuyCost += p * s; totalBuyShares += s; } });
+  const avgCost = totalBuyShares > 0 ? (totalBuyCost / totalBuyShares).toFixed(3) : '-';
+
+  let totalProfit = 0, winCount = 0;
+  linkedSells.forEach(r => {
+    const buyRec = records.find(x => x.id == r.linkId);
+    const val = calcActualProfit(r, buyRec, records);
+    if (val !== '') {
+      const v = parseFloat(val);
+      totalProfit += v;
+      if (v > 0) winCount++;
+    }
+  });
+
+  const winRate = linkedSells.length > 0 ? ((winCount / linkedSells.length) * 100).toFixed(1) + '%' : '-';
+
+  area.innerHTML = '';
+  const items = [
+    { label: '买入笔数', value: buys.length },
+    { label: '卖出笔数', value: sells.length },
+    { label: '已关联卖出', value: linkedSells.length },
+    { label: '买入均价', value: avgCost },
+    { label: '累计盈亏(已关联)', value: totalProfit.toFixed(2), cls: totalProfit >= 0 ? 'positive' : 'negative' },
+    { label: '胜率', value: winRate },
+  ];
+  items.forEach(it => {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = '<div class="label">' + it.label + '</div><div class="value ' + (it.cls || '') + '">' + it.value + '</div>';
+    area.appendChild(card);
+  });
+}
+
+const COLOR_PROFIT = '#c76b6b';   // 盈利（国内习惯：红涨）
+const COLOR_LOSS = '#558a6a';     // 亏损（国内习惯：绿跌）
+const COLOR_BUY = '#3f8f63';
+const COLOR_SELL = '#c76b6b';
+
+function chartBucketKey(date) {
+  if (chartGrain === 'month') return date.slice(0, 7);
+  if (chartGrain === 'week') {
+    const d = new Date(date + 'T00:00:00');
+    if (isNaN(d)) return date;
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // 回到本周一
+    return d.toISOString().slice(0, 10);
+  }
+  return date;
+}
+
+function chartBucketLabel(key) {
+  if (chartGrain === 'month') return key;
+  const md = key.slice(5);
+  return chartGrain === 'week' ? md + '周' : md;
+}
+
+function renderChartTools() {
+  const build = (el, items, cur, onPick) => {
+    el.innerHTML = '';
+    items.forEach(([val, label]) => {
+      const b = document.createElement('button');
+      b.className = 'seg-btn' + (val === cur ? ' active' : '');
+      b.textContent = label;
+      b.onclick = () => onPick(val);
+      el.appendChild(b);
+    });
+  };
+  build(document.getElementById('grainSeg'), CHART_GRAINS, chartGrain, v => { chartGrain = v; render(); });
+  build(document.getElementById('rangeSeg'), CHART_RANGES, chartRange, v => { chartRange = v; render(); });
+}
+
+function bucketTime(key) {
+  // 月粒度 key 为 YYYY-MM，日/周粒度为 YYYY-MM-DD
+  return new Date((key.length === 7 ? key + '-01' : key) + 'T00:00:00').getTime();
+}
+
+function chartZoomWindow(keys) {
+  if (!keys.length) return { start: 0, end: 100 };
+  const cfg = CHART_RANGES.find(r => r[0] === chartRange);
+  const days = cfg ? cfg[2] : 0;
+  if (!days) return { start: 0, end: 100 };
+  const cutoff = bucketTime(keys[keys.length - 1]) - days * 86400000;
+  let idx = keys.findIndex(k => bucketTime(k) >= cutoff);
+  if (idx < 0) idx = 0;
+  const start = keys.length > 1 ? (idx / (keys.length - 1)) * 100 : 0;
+  return { start, end: 100 };
+}
+
+function renderChart(records) {
+  const el = document.getElementById('chart');
+  if (!chart) chart = echarts.init(el);
+  renderChartTools();
+
+  const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+  const valid = records.filter(r => r.date && num(r.price) != null);
+  const sorted = [...valid].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+
+  // 按粒度分桶：同一天/周/月的多笔合并，价格按数量加权，数量累加
+  const map = new Map();
+  sorted.forEach(r => {
+    const key = chartBucketKey(r.date);
+    if (!map.has(key)) map.set(key, { key, buys: [], sells: [] });
+    (r.type === 'buy' ? map.get(key).buys : map.get(key).sells).push(r);
+  });
+  const buckets = [...map.values()].sort((a, b) => a.key.localeCompare(b.key));
+
+  // 加权均价：按数量加权，等价于该时段实际成交均价
+  const wavg = list => {
+    let amt = 0, qty = 0;
+    list.forEach(r => { const p = num(r.price), s = num(r.shares) || 0; if (p != null) { amt += p * Math.max(s, 0); qty += Math.max(s, 0); } });
+    if (qty > 0) return amt / qty;
+    const ps = list.map(r => num(r.price)).filter(p => p != null);
+    return ps.length ? ps.reduce((x, y) => x + y, 0) / ps.length : null;
+  };
+  const qtyOf = list => { const q = list.reduce((s, r) => s + (num(r.shares) || 0), 0); return q || null; };
+  const targetOf = list => {
+    let amt = 0, qty = 0;
+    list.forEach(r => {
+      const t = parseFloat(calcTargetPrice(r, records));
+      const s = Math.max(num(r.shares) || 0, 0);
+      if (!isNaN(t)) { amt += t * (s || 1); qty += (s || 1); }
+    });
+    return qty ? amt / qty : null;
+  };
+  const pnlOf = list => {
+    if (!list.length) return null;
+    return list.reduce((s, r) => s + (parseFloat(calcActualProfit(r, records.find(x => x.id == r.linkId), records)) || 0), 0);
+  };
+
+  buckets.forEach(b => {
+    b.buyPrice = wavg(b.buys);
+    b.sellPrice = wavg(b.sells);
+    b.buyQty = qtyOf(b.buys);
+    b.sellQty = qtyOf(b.sells);
+    b.target = targetOf(b.buys);
+    b.pnl = pnlOf(b.sells.filter(r => r.linkId));
+    b.label = chartBucketLabel(b.key);
+  });
+
+  const labels = buckets.map(b => b.label);
+
+  const zoom = chartZoomWindow(buckets.map(b => b.key));
+  const hasPnl = buckets.some(b => b.pnl != null);
+
+  const tooltipFmt = params => {
+    if (!params.length) return '';
+    const b = buckets[params[0].dataIndex];
+    if (!b) return '';
+    const line = (color, text) => '<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px"></span>' + text + '</div>';
+    let html = '<b>' + b.key + (chartGrain === 'week' ? ' 当周' : '') + '</b>';
+    if (b.buyPrice != null) html += line(COLOR_BUY, '买入 ' + b.buyPrice.toFixed(3) + ' × ' + (b.buyQty || 0) + '（' + b.buys.length + ' 笔）');
+    if (b.target != null) html += line('#a9a9a9', '目标卖出价 ' + b.target.toFixed(3));
+    if (b.sellPrice != null) html += line(COLOR_SELL, '卖出 ' + b.sellPrice.toFixed(3) + ' × ' + (b.sellQty || 0) + '（' + b.sells.length + ' 笔）');
+    if (b.pnl != null) html += line(b.pnl >= 0 ? COLOR_PROFIT : COLOR_LOSS, '回合盈亏 ' + b.pnl.toFixed(2));
+    return html;
+  };
+
+  const option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a707d' } }, formatter: tooltipFmt },
+    legend: { data: ['买入价', '卖出价', '目标价', '买入量', '卖出量', '回合盈亏'], top: 0 },
+    axisPointer: { link: [{ xAxisIndex: 'all' }] },
+    grid: [
+      { left: 56, right: 56, top: 34, height: '50%' },
+      { left: 56, right: 56, top: '68%', height: hasPnl ? '18%' : '10%' },
+    ],
+    xAxis: [
+      { type: 'category', gridIndex: 0, data: labels, boundaryGap: true, axisLabel: { hideOverlap: true }, axisTick: { alignWithLabel: true } },
+      { type: 'category', gridIndex: 1, data: labels, boundaryGap: true, axisLabel: { show: false }, axisTick: { show: false }, splitLine: { show: false } },
+    ],
+    yAxis: [
+      { gridIndex: 0, type: 'value', name: '价格', scale: true, splitLine: { lineStyle: { color: '#f0f0f0' } } },
+      { gridIndex: 0, type: 'value', name: '数量', splitLine: { show: false } },
+      { gridIndex: 1, type: 'value', name: '盈亏', scale: true, splitNumber: 2, splitLine: { show: false } },
+    ],
+    dataZoom: [
+      { type: 'slider', xAxisIndex: [0, 1], start: zoom.start, end: zoom.end, bottom: 4, height: 16, brushSelect: false },
+    ],
+    series: [
+      {
+        name: '买入量',
+        type: 'bar',
+        xAxisIndex: 0, yAxisIndex: 1,
+        data: buckets.map(b => b.buyQty),
+        barGap: '0%',
+        itemStyle: { color: 'rgba(63,143,99,0.22)' },
+      },
+      {
+        name: '卖出量',
+        type: 'bar',
+        xAxisIndex: 0, yAxisIndex: 1,
+        data: buckets.map(b => b.sellQty),
+        itemStyle: { color: 'rgba(199,107,107,0.22)' },
+      },
+      {
+        name: '买入价',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: buckets.map(b => b.buyPrice),
+        connectNulls: true,
+        symbol: 'circle',
+        lineStyle: { color: COLOR_BUY },
+        itemStyle: { color: COLOR_BUY },
+      },
+      {
+        name: '卖出价',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: buckets.map(b => b.sellPrice),
+        connectNulls: true,
+        symbol: 'circle',
+        lineStyle: { color: COLOR_SELL },
+        itemStyle: { color: COLOR_SELL },
+      },
+      {
+        name: '目标价',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: buckets.map(b => b.target),
+        connectNulls: true,
+        symbol: 'none',
+        lineStyle: { color: '#b0b0b0', type: 'dashed', width: 1 },
+        itemStyle: { color: '#b0b0b0' },
+      },
+      {
+        name: '回合盈亏',
+        type: 'bar',
+        xAxisIndex: 1, yAxisIndex: 2,
+        data: buckets.map(b => b.pnl),
+        itemStyle: {
+          color: p => (parseFloat(p.value) >= 0 ? COLOR_PROFIT : COLOR_LOSS),
+          opacity: 0.75,
+        },
+      },
+    ],
+  };
+  chart.setOption(option, true);
+}
+
+function showJsonPanel() {
+  const panel = document.getElementById('jsonPanel');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    loadJsonIntoTextarea();
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function loadJsonIntoTextarea() {
+  document.getElementById('jsonArea').value = JSON.stringify(stocks);
+}
+
+function importFromTextarea() {
+  try {
+    const data = JSON.parse(document.getElementById('jsonArea').value);
+    if (typeof data !== 'object') throw 0;
+    stocks = data;
+    save();
+    currentStock = stockKeys()[0] || null;
+    renderTabs();
+    render();
+    alert('导入成功');
+  } catch {
+    alert('JSON 格式不正确');
+  }
+}
+
+function clearJsonArea() {
+  document.getElementById('jsonArea').value = '';
+}
+
+function selectJsonArea() {
+  const ta = document.getElementById('jsonArea');
+  ta.focus();
+  ta.select();
+}
+
+// 初始化
+if (stockKeys().length > 0) currentStock = stockKeys()[0];
+renderTabs();
+render();
+
+window.addEventListener('resize', () => {
+  render(); // 屏幕宽度变化时切换桌面表格 / 手机模式
+  chart && chart.resize();
+});
+
+document.getElementById('modeToggle').addEventListener('click', () => {
+  setRecordMode(recordMode === 'view' ? 'edit' : 'view');
+});
+
+function renderCalc() {
+  const buy = parseFloat(document.getElementById('calcBuy').value);
+  const sell = parseFloat(document.getElementById('calcSell').value);
+  const qty = parseFloat(document.getElementById('calcQty').value);
+  const el = document.getElementById('calcResult');
+  if (isNaN(buy) || isNaN(sell) || buy <= 0) {
+    el.innerHTML = '盈亏 -';
+    el.className = 'result';
+    return;
+  }
+  // 百分比只看价格涨幅，与数量无关；10元手续费只从金额里扣
+  const pct = (sell - buy) / buy * 100;
+  const pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+  const hasQty = !isNaN(qty) && qty > 0;
+  if (!hasQty) {
+    el.className = 'result ' + (pct >= 0 ? 'positive' : 'negative');
+    el.innerHTML = '涨幅 <b>' + pctText + '</b>，输入数量后算金额';
+    return;
+  }
+  const profit = (sell - buy) * qty - ROUND_TRIP;
+  const isZero = Math.abs(profit) < 0.005;
+  el.className = 'result ' + (isZero || profit > 0 ? 'positive' : 'negative');
+  el.innerHTML = '盈亏 <b>' + (isZero ? '0.00' : profit.toFixed(2)) + '</b> 涨幅 <b>' + pctText
+    + '</b>（金额已扣 ' + ROUND_TRIP + ' 元手续费）';
+}
+
+['calcBuy', 'calcSell', 'calcQty'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderCalc);
+});
+</script>
+</body>
