@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日内做T指导手册（通用版）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  body{margin:0;background:#f5f5f7;color:#1d1d1f;-webkit-font-smoothing:antialiased;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Segoe UI","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 12px;}
+  h1{font-size:26px;font-weight:700;letter-spacing:-0.02em;text-align:center;padding:34px 0 2px;margin:0;line-height:1.35;}
+  h1 span{display:block;}
+  h1 .sub{font-size:15px;font-weight:500;color:#6e6e73;margin-top:8px;}
+  h1 .asof{font-size:13px;font-weight:400;color:#86868b;margin-top:8px;}
+  .notice{max-width:1100px;margin:16px auto 0;padding:14px 20px;background:#fff8e6;border:1px solid #f0e0b0;
+    border-radius:14px;font-size:13px;color:#8a6d1a;line-height:1.7;box-sizing:border-box;}
+  .toc{max-width:1100px;margin:16px auto 0;padding:16px 22px;background:#fff;border-radius:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);box-sizing:border-box;}
+  .toc h2{font-size:14px;color:#86868b;font-weight:600;margin:0 0 8px;letter-spacing:.04em;}
+  .toc ol{margin:0;padding-left:20px;line-height:2;font-size:14px;}
+  .toc a{color:#0071e3;text-decoration:none;}
+  .toc a:hover{text-decoration:underline;}
+  .card{max-width:1100px;margin:18px auto 0;padding:22px 26px;background:#fff;border-radius:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);box-sizing:border-box;
+    line-height:1.85;font-size:14.5px;color:#35353a;}
+  .card h2{font-size:20px;color:#1d1d1f;border-bottom:1px solid #e5e5ea;padding-bottom:10px;margin:0 0 6px;letter-spacing:-0.01em;}
+  .card h3{font-size:16px;color:#1d1d1f;margin:18px 0 6px;}
+  .card strong{color:#0071e3;}
+  .card p{margin:9px 0;}
+  .card ul,.card ol{margin:8px 0;padding-left:22px;}
+  .card li{margin:4px 0;}
+  .muted{color:#86868b;}
+  .chart{max-width:1100px;margin:14px auto 0;height:400px;background:#fff;border-radius:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);padding:8px;box-sizing:border-box;}
+  .chart.tall{height:460px;}
+  .cap{max-width:1100px;margin:8px auto 0;padding:0 6px;font-size:13px;color:#6e6e73;line-height:1.7;}
+  .cap b{color:#1d1d1f;}
+  .tip{border-left:4px solid #34c759;background:#f2fbf4;padding:10px 16px;border-radius:8px;margin:12px 0;}
+  .warn{border-left:4px solid #ff9500;background:#fff7ec;padding:10px 16px;border-radius:8px;margin:12px 0;}
+  table.t{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px;}
+  table.t th,table.t td{padding:9px 12px;border-bottom:1px solid #e5e5ea;text-align:left;vertical-align:top;}
+  table.t th{color:#86868b;font-weight:600;background:#fafafa;}
+  .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;}
+  .pill.s{background:#ffe9e6;color:#d70015;}
+  .pill.m{background:#fff3d6;color:#a05a00;}
+  .pill.w{background:#eef0f2;color:#6e6e73;}
+  .back{max-width:1100px;margin:14px auto 0;font-size:13px;}
+  .back a{color:#0071e3;text-decoration:none;}
+  .foot{text-align:center;color:#86868b;font-size:12px;padding:24px 16px 50px;}
+  @media (max-width:560px){
+    .card{padding:16px 16px;}
+    .chart{height:320px;}
+    .chart.tall{height:380px;}
+    h1{font-size:21px;padding:24px 12px 2px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>
+    <span>日内做T指导手册</span>
+    <span class="sub">怎么看图 · 怎么做T —— 小白也能照着做的一套方法</span>
+    <span class="asof">通用版 · 使用示意图形，不针对任何具体标的</span>
+  </h1>
+</div>
+
+<div class="notice">
+  <b>免责声明：</b>本手册是交易方法的复盘与教学材料，图中数据均为<b>示意</b>，用于讲解“怎么看图”。
+  它不针对任何具体标的，也<b>不构成任何买卖建议</b>。市场有风险，任何决策及其后果由你自己承担。
+  涉及交易规则（尤其 T+0 / T+1、费用）请以你所在券商的实际情况为准。
+</div>
+
+<div class="toc">
+  <h2>目录</h2>
+  <ol>
+    <li><a href="#p0">入门：做T到底赚什么钱</a></li>
+    <li><a href="#p1">做T基础：正T / 反T / 仓位 / T+0与T+1</a></li>
+    <li><a href="#p2">看懂分时图（核心，多图）</a></li>
+    <li><a href="#p2b">常见日内形态图谱：多空 / 洗盘 / 诱多 / 诱空</a></li>
+    <li><a href="#p2c">尾盘定次日：当天怎么收，次日怎么应对</a></li>
+    <li><a href="#p3">多周期怎么看：哪些跟做T强相关</a></li>
+    <li><a href="#p4">消息面与大盘 / 板块联动</a></li>
+    <li><a href="#p5">先把标的分类，再套方法</a></li>
+    <li><a href="#p6">风险与纪律 + 动手前速查清单</a></li>
+    <li><a href="#app">附录：术语表</a></li>
+  </ol>
+</div>
+
+<!-- ===================== Part 0 ===================== -->
+<div class="card" id="p0">
+  <h2>0. 入门：做T到底赚什么钱</h2>
+  <p><strong>做T</strong>（也叫“T+0 交易”）不是无风险套利。它的本质是：在你<strong>已经持有底仓</strong>的前提下，
+  用同一个标的，利用<strong>日内或短线的波动</strong>，做一次“低买高卖”或“高卖低买”，赚取差价、或降低持仓成本。</p>
+  <p>它赚三种钱：<strong>①日内波动差价 ②摊薄持仓成本 ③让闲钱多用一次</strong>。
+  但它同样会亏——做反了就是“高买低卖”，成本反而被抬高。</p>
+  <p>最关键的一条认知：<strong>做T做的是纪律和概率，不是预测涨跌</strong>。
+  你不需要猜对方向，只需要在“<strong>大概率的位置</strong>”做“<strong>固定的动作</strong>”，长期把小胜累积起来。</p>
+  <div class="tip">
+    <strong>小白三条铁律（先背下来）</strong>
+    <ol>
+      <li><strong>不追高、不越跌越买</strong>——没有预设规则的钱，一分不投。</li>
+      <li><strong>T 仓不超过底仓的 1/3</strong>——永远给自己留犯错空间。</li>
+      <li><strong>先想好“如果错了怎么办”再动手</strong>——每笔T都要有放弃/止损条件。</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ===================== Part 1 ===================== -->
+<div class="card" id="p1">
+  <h2>1. 做T基础：正T / 反T / 仓位 / T+0与T+1</h2>
+
+  <h3>1.1 底仓 vs T仓</h3>
+  <ul>
+    <li><strong>底仓</strong>：你中长期持有的那部分份额，<strong>平时不动</strong>，是做T的“安全垫”。</li>
+    <li><strong>T仓</strong>：专门用来做T的那部分，<strong>今天动</strong>。做T就是围绕底仓做加减。</li>
+  </ul>
+
+  <h3>1.2 两个方向：正T 与 反T</h3>
+  <ul>
+    <li><strong>正T（先买后卖）</strong>：在<strong>低位</strong>先买入T仓，涨上去后卖出<strong>等量底仓</strong>。
+      → 适合价格在<strong>箱体低位</strong>、或日内回调到支撑。需要一笔 T 资金。</li>
+    <li><strong>反T（先卖后买）</strong>：在<strong>高位</strong>先卖出部分<strong>底仓</strong>，跌下来再接回。
+      → 适合价格在<strong>箱体高位</strong>、或日内冲高。不需要额外资金，但要求你有底仓。</li>
+  </ul>
+
+  <div class="chart" id="c1"></div>
+  <div class="cap"><b>图1 · 正T示意（低吸后高抛）。</b>黑色为价格线、橙色为当日均价线、虚线为昨收。
+  价格先跌到均价下方（低位），是<b>低吸参考</b>；随后拉回站稳、冲高，是<b>卖旧仓参考</b>。低买 → 高卖，同一数量。</div>
+
+  <div class="chart" id="c2"></div>
+  <div class="cap"><b>图2 · 反T示意（高抛后低吸）。</b>价格先冲高（高位）→ <b>先卖底仓</b>；随后回落 → <b>再接回</b>。
+  一卖一买，底仓数量不变，成本被摊低。</div>
+
+  <h3>1.3 T+1 还是 T+0？——这一步决定你能不能做、能做几次</h3>
+  <ul>
+    <li><strong>A股股票、股票型ETF（宽基/行业/主题）＝ T+1</strong>：今天买的份额，<strong>明天才能卖</strong>。
+      所以做T只能<strong>靠底仓</strong>：正T＝先买（今天买、涨了卖昨天的底仓）；反T＝先卖底仓、再买回（买回那部分明天才可卖）。
+      <br><span class="muted">→ 结论：T+1 标的，<strong>一天最多顺着一轮</strong>做（不能反复刷）。</span></li>
+    <li><strong>黄金ETF、跨境ETF、债券/货币ETF、可转债 ＝ T+0</strong>：当日可来回买卖，能真正做“日内多次”。
+      <br><span class="muted">→ 更灵活，但也更容易<strong>手痒、过度交易</strong>，必须用规则约束。</span></li>
+  </ul>
+  <div class="warn"><strong>务必以券商实际规则为准。</strong>不同标的的 T+0 / T+1 可能不同，动手前先确认，
+  别把“当天买当天卖”当成理所当然。</div>
+
+  <h3>1.4 仓位与次数</h3>
+  <ul>
+    <li>T仓 ≤ 底仓的 <strong>1/3 ~ 1/2</strong>；一次只做<strong>一只、一个方向</strong>。</li>
+    <li>单日做T <strong>≤ 1~2 次</strong>；做错当天<strong>不再补做</strong>，防止越做越乱。</li>
+  </ul>
+</div>
+
+<!-- ===================== Part 2 ===================== -->
+<div class="card" id="p2">
+  <h2>2. 看懂分时图（核心）</h2>
+  <p>分时图是“<strong>当天</strong>”的图：横轴是时间（9:30–15:00，中午 11:30–13:00 休市），
+  图上有三样东西——</p>
+  <ul>
+    <li><strong>价格线</strong>（通常白色/亮色）：当前成交价。</li>
+    <li><strong>均价线</strong>（黄色）：当天到此刻的<strong>成交均价</strong>（VWAP），是<strong>日内的多空分水岭</strong>。</li>
+    <li><strong>量柱</strong>：每个时刻的成交量；基准线是<strong>昨收</strong>（涨跌的 0 轴）。</li>
+  </ul>
+
+  <div class="chart" id="c3"></div>
+  <div class="cap"><b>图3 · 分时图解剖。</b>看三处：①<strong>价格线</strong>在<strong>均价线</strong>上方还是下方 →
+  强弱；②<strong>均价线</strong>自身是向上还是向下 → 趋势；③<strong>量柱</strong>放大还是缩小 → 有没有资金。</div>
+
+  <h3>2.1 四条核心口诀</h3>
+  <ul>
+    <li>价格在<strong>均价线上方、且均价线向上</strong> → <strong>强势</strong>（做正T相对顺风）。</li>
+    <li>价格在<strong>均价线下方、且均价线向下</strong> → <strong>弱势</strong>（别硬做正T；反弹到均价线是减仓参考）。</li>
+    <li>价格<strong>回踩均价线不破</strong> → <strong>支撑</strong>（低吸参考）。</li>
+    <li>价格<strong>反弹到均价线被压回</strong> → <strong>压力</strong>（高抛参考）。</li>
+  </ul>
+
+  <div class="chart" id="c4"></div>
+  <div class="cap"><b>图4 · 均价线支撑。</b>价格多次回踩橙色均价线都<b>没跌破</b>，随即反弹——
+  这是“下沿”的味道，可作为<b>低吸参考</b>，跌破并收在均价线下方则视为支撑失效。</div>
+
+  <div class="chart" id="c5"></div>
+  <div class="cap"><b>图5 · 均价线压制。</b>价格反弹到均价线附近就被<b>压回</b>——这是“上沿”的味道，
+  可作为<b>高抛参考</b>。价格站不回均价线上方，说明全天偏弱。</div>
+
+  <h3>2.2 四个典型形态</h3>
+  <div class="chart" id="c6"></div>
+  <div class="cap"><b>图6 · 冲高回落（诱多）。</b>早盘急拉但量跟不上，随后一路走弱、收在均价线下方。
+  <b>别追高</b>；手上有的，冲高是<b>高抛参考</b>。</div>
+
+  <div class="chart" id="c7"></div>
+  <div class="cap"><b>图7 · 探底回升（由弱转强）。</b>早盘杀跌到均价线下方后，被拉回并<b>重新站上均价线</b>，
+  均价线拐头向上——这是<b>低吸参考</b>信号（由弱转强）。</div>
+
+  <div class="chart" id="c8"></div>
+  <div class="cap"><b>图8 · 单边下跌（弱势）。</b>价格与均价线同步向下，全天没有像样反弹。
+  <b>别硬做正T</b>；这种日子宁可空着，做也只做反T且仓位小、手要快。</div>
+
+  <div class="chart" id="c9"></div>
+  <div class="cap"><b>图9 · 量价背离。</b>价格还在涨，但<b>量柱越来越小</b>——上涨缺乏资金支撑，随时可能回落。
+  见到“价升量缩”，<b>别追、考虑高抛</b>。</div>
+
+  <h3>2.3 四个关键时点</h3>
+  <table class="t">
+    <thead><tr><th>时段</th><th>看什么</th><th>怎么用</th></tr></thead>
+    <tbody>
+      <tr><td><strong>09:30–10:00</strong></td><td>开盘定调，波动最大</td><td>看高开/低开+首半小时量能，判断今天是强是弱；<strong>别急着满仓做</strong>。</td></tr>
+      <tr><td><strong>10:00–11:30</strong></td><td>主趋势展开</td><td>价格相对均价线的位置最“诚实”，是主要观察窗。</td></tr>
+      <tr><td><strong>13:00–13:30</strong></td><td>午后方向</td><td>午后第一波常决定尾盘强弱，是重要的低吸/高抛窗口。</td></tr>
+      <tr><td><strong>14:30–15:00</strong></td><td>尾盘收尾</td><td>做T的“收尾”窗口；尾盘强弱也是次日预期的信号。</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===================== Part 2b 形态图谱 ===================== -->
+<div class="card" id="p2b">
+  <h2>2.4 常见日内形态图谱（对照学习）</h2>
+  <p>这一节是“看图认形态”。先把 <strong>多空</strong> 说清，再逐个认 <strong>洗盘 / 诱多 / 诱空 / 尾盘拉砸</strong>。
+  每张图下面给你三行：<strong>它在干什么（意图）</strong>、<strong>小白最容易犯的错</strong>、<strong>正确动作</strong>。</p>
+
+  <h3>2.4.1 先懂“多空 / 多头 / 空头”</h3>
+  <ul>
+    <li><strong>多头</strong>＝看涨的一方（买单多）；<strong>空头</strong>＝看跌的一方（卖单多）；<strong>多空</strong>＝两方的力量对比。</li>
+    <li>盘面只认两条：价格在<strong>均价线</strong>上/下，均价线向上/向下。</li>
+    <li><strong>多头占优</strong>：价格在均价线上方、均价线上行、波谷逐步抬高 → 偏正T（低吸顺风）。</li>
+    <li><strong>空头占优</strong>：价格在均价线下方、均价线下行、波峰逐步降低 → <strong>别硬做正T</strong>，宁做反T / 观望。</li>
+  </ul>
+
+  <div class="chart" id="c13"></div>
+  <div class="cap"><b>图13 · 多头占优。</b>价格整体在橙色均价线上方，且<b>每一个波谷都比上一个高</b>——买盘不断接住回调，是强势形态。</div>
+
+  <div class="chart" id="c14"></div>
+  <div class="cap"><b>图14 · 空头占优。</b>价格压在均价线下方，<b>每一个波峰都比上一个低</b>——卖盘一波波压下来，是弱势形态。这种日子别指望“抄底反弹”。</div>
+
+  <h3>2.4.2 洗盘：缩量阴跌 + 尾盘急拉</h3>
+  <div class="chart" id="c15"></div>
+  <div class="cap"><b>图15 · 洗盘（你遇到的那个贯穿形态）。</b>低开 → 拉升（把人吸引进来）→ <b>缩量缓慢阴跌</b>（钝刀割肉，磨走没耐心的人）→ <b>尾盘急速拉升</b>（把低位割肉的人甩下车）。</div>
+  <table class="t"><tbody>
+    <tr><th style="width:30%">它在干什么</th><td>阴跌时<b>缩量</b>，说明抛压其实不重——主力用“磨”而不是“砸”来制造恐慌，骗走浮动筹码。</td></tr>
+    <tr><th>小白易犯的错</th><td>被缓慢阴跌磨到“感觉快撑不住”，<b>在下跌末段追着卖</b>，正好卖在最低点，然后眼看尾盘拉起。</td></tr>
+    <tr><th>正确动作</th><td>① 阴跌途中<b>不卖</b>；要减也在<b>反弹/冲高</b>处挂单。② 看量：缩量阴跌多为洗盘，放量破位才走。③ 把减仓决定<b>推迟到 14:30 后</b>。</td></tr>
+  </tbody></table>
+
+  <h3>2.4.3 诱多：假突破</h3>
+  <div class="chart" id="c16"></div>
+  <div class="cap"><b>图16 · 诱多（假突破）。</b>价格冲过“前高 / 箱顶”，吸引追涨盘进场，随后<b>快速回落</b>——追进去的人被套在半山腰。</div>
+  <table class="t"><tbody>
+    <tr><th style="width:30%">它在干什么</th><td>用一次“看起来要突破”的冲高，把追涨的买单<strong>骗进来</strong>，然后在高位派发。</td></tr>
+    <tr><th>小白易犯的错</th><td>看到“突破前高”就追涨买入，结果买在假突破的顶部。</td></tr>
+    <tr><th>正确动作</th><td>突破要<b>放量站稳</b>才算数；<b>冲高不放量、随后跌回原位</b>＝假突破，别追，反手可考虑高抛。</td></tr>
+  </tbody></table>
+
+  <h3>2.4.4 诱空：假破位</h3>
+  <div class="chart" id="c17"></div>
+  <div class="cap"><b>图17 · 诱空（假破位）。</b>价格跌破“支撑 / 前低”，制造恐慌让人割肉，随后<b>快速拉回原位</b>——割在地板上的人被洗出局。</div>
+  <table class="t"><tbody>
+    <tr><th style="width:30%">它在干什么</th><td>用一次“看起来要崩”的破位，把恐慌盘<strong>吓出来</strong>，主力在低位捡筹码。</td></tr>
+    <tr><th>小白易犯的错</th><td>看到“跌破支撑”就恐慌卖出，正好卖在假破位的坑里（和你说的“卖在最低点”同源）。</td></tr>
+    <tr><th>正确动作</th><td>破位后<b>能快速收回、且没放量</b>＝假破位，别慌；真正的破位是<b>放量下杀且收不回来</b>。</td></tr>
+  </tbody></table>
+
+  <h3>2.4.5 尾盘急拉 与 尾盘急砸</h3>
+  <div class="chart" id="c18"></div>
+  <div class="cap"><b>图18 · 尾盘急拉。</b>全天平淡甚至偏弱，最后半小时突然放量拉起——常是资金抢筹或做收盘价，<b>次日往往还有惯性</b>。</div>
+  <div class="chart" id="c19"></div>
+  <div class="cap"><b>图19 · 尾盘急砸。</b>全天还行，最后半小时突然跳水——要么是资金离场，要么是躲避隔夜风险，<b>别急着在盘中最低点割</b>，看它收盘能不能收回。</div>
+  <div class="tip"><strong>尾盘为什么重要：</strong>很多“拉”和“砸”都发生在最后 30 分钟。所以做T尽量<b>不要在盘中最低点做决定</b>，把“要不要动手”留到 <strong>14:30 以后</strong>再看。</div>
+
+  <h3>2.4.6 术语速查</h3>
+  <table class="t"><tbody>
+    <tr><th style="width:26%">多头 / 空头 / 多空</th><td>看涨方 / 看跌方 / 两方的力量对比。</td></tr>
+    <tr><th>诱多</th><td>制造“要涨”的假象（如假突破），骗人追进后回落。</td></tr>
+    <tr><th>诱空</th><td>制造“要跌”的假象（如假破位），骗人割肉后拉升。</td></tr>
+    <tr><th>洗盘（震仓）</th><td>主力故意打压或磨盘，把没耐心的浮动筹码洗出去。</td></tr>
+    <tr><th>吸筹 / 出货</th><td>在低位悄悄买入收集筹码 / 在高位派发卖出筹码。</td></tr>
+    <tr><th>放量 / 缩量</th><td>成交量比平时明显放大 / 缩小。“阴跌缩量”多偏洗盘，“破位放量”多偏真走弱。</td></tr>
+    <tr><th>假突破 / 假破位</th><td>突破或跌破关键价位后<b>又快速收回</b>，是骗人的动作。</td></tr>
+  </tbody></table>
+</div>
+
+<!-- ===================== Part 2c 尾盘定次日 ===================== -->
+<div class="card" id="p2c">
+  <h2>2.5 尾盘定次日：当天怎么收，次日怎么应对</h2>
+  <p>尾盘半小时的<strong>价格</strong>和<strong>量能</strong>，是市场对“今天”的总结、对“明天”的投票。
+  它<strong>不能百分百预测次日</strong>，但能给你一个<strong>概率倾向</strong>——真正的作用是让你<strong>收盘前就想好“明天怎么办”</strong>，而不是开盘了才手忙脚乱。</p>
+
+  <table class="t">
+    <thead><tr><th style="width:30%">当天怎么收</th><th style="width:32%">次日倾向（概率，非必然）</th><th>应对（做T视角）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>尾盘 <strong>放量</strong> 急拉、收在高点</td>
+        <td>易<strong>高开 / 惯性冲高</strong></td>
+        <td>冲高<strong>别追</strong>；若高开滞涨、或放量冲高回落 → <strong>高抛（反T）</strong>；回踩不破均价可低吸。</td>
+      </tr>
+      <tr>
+        <td>尾盘 <strong>无量</strong> 拉高、涨幅虚</td>
+        <td>易<strong>“高开低走”</strong>（次日不认账）</td>
+        <td>高开就是送你卖点，<strong>优先高抛</strong>，别追。</td>
+      </tr>
+      <tr>
+        <td>尾盘 <strong>放量</strong> 急砸、收在低点</td>
+        <td>易<strong>低开 / 惯性下探</strong></td>
+        <td>低开<strong>别急着割</strong>，看低开后能否回稳、重新站上均价线。</td>
+      </tr>
+      <tr>
+        <td>尾盘 <strong>缩量</strong> 小跌 / 走平</td>
+        <td>多为<strong>震荡延续</strong></td>
+        <td>按原方向小额做，<strong>不重仓押方向</strong>。</td>
+      </tr>
+      <tr>
+        <td>全天高开高走、收在最高</td>
+        <td>易<strong>高开延续</strong></td>
+        <td>连续大涨后防<strong>冲高回落</strong>，越涨越减、别加仓。</td>
+      </tr>
+      <tr>
+        <td>全天低开低走、收在最低</td>
+        <td>易<strong>低开延续</strong>（弱势）</td>
+        <td><strong>反T为主或观望</strong>，别硬做正T。</td>
+      </tr>
+      <tr>
+        <td>冲高回落后，收在均价线<strong>下方</strong></td>
+        <td>偏<strong>弱</strong></td>
+        <td>次日反抽到均价线，是<strong>减仓参考</strong>。</td>
+      </tr>
+      <tr>
+        <td>探底回升后，收在均价线<strong>上方</strong></td>
+        <td>偏<strong>强</strong></td>
+        <td>次日回踩，是<strong>低吸参考</strong>。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="tip"><strong>关键分水岭是“量”：</strong>同样是尾盘拉——<strong>放量拉</strong>多是真的（资金在抢），
+  <strong>无量拉</strong>多是虚的（做收盘价），次日常“高开低走”。尾盘砸也一样：<strong>放量砸</strong>要防，
+  <strong>缩量砸</strong>常是情绪、未必延续。</div>
+
+  <div class="chart" id="c20a"></div>
+  <div class="cap"><b>图20a · 次日“高开高走”（惯性延续）。</b>承接昨天尾盘放量急拉的势头，高开后一路走强。
+  这种日子的回踩不破均价，是<b>低吸参考</b>。</div>
+
+  <div class="chart" id="c20b"></div>
+  <div class="cap"><b>图20b · 次日“高开低走”（冲高兑现）。</b>同样高开，却冲一下就走弱、跌破均价——昨天拉得虚、或利好兑现。
+  这种高开是<b>高抛参考</b>，不是买点。</div>
+
+  <h3>2.5.1 收盘后花两分钟，问三件事（隔夜三问）</h3>
+  <ol>
+    <li><strong>今天怎么收的？</strong>——收在均价<strong>上</strong>还是<strong>下</strong>？靠近<strong>最高</strong>还是<strong>最低</strong>？尾盘<strong>放量</strong>还是<strong>缩量</strong>？</li>
+    <li><strong>隔夜有没有变量？</strong>——外围（隔夜美股、外盘商品/黄金、汇率）、政策/行业消息。黄金、跨境类标的对外围尤其敏感。</li>
+    <li><strong>明天可能怎么开，我怎么应对？</strong>——<strong>高开</strong> → 想减仓 / 不追；<strong>低开</strong> → 看能否回稳；<strong>平开</strong> → 按结构（位置+均价线）做。</li>
+  </ol>
+  <div class="warn"><strong>再强调一次：这是“概率倾向”，不是“预测”。</strong>A股受隔夜外盘与突发消息影响很大，次日常常被打乱。
+  所以你要准备的是<strong>“应对”</strong>，不是<strong>“赌方向”</strong>——无论怎么开，都有对应的动作，这才是不慌的底气。</div>
+</div>
+
+<!-- ===================== Part 3 ===================== -->
+<div class="card" id="p3">
+  <h2>3. 多周期怎么看：哪些跟做T强相关</h2>
+  <p>一句话：<strong>大周期定方向，小周期找买点</strong>。</p>
+  <ul>
+    <li><strong>周K</strong>：定<strong>大方向 / 结构</strong>（在箱体的哪一端、趋势向上还是向下）。决定“<strong>要不要做T、做正T还是反T</strong>”。</li>
+    <li><strong>日K</strong>：定<strong>位置</strong>（箱体上下沿、均线支撑压力）。决定“<strong>在哪里做</strong>”。</li>
+    <li><strong>60 / 30分钟K</strong>：日内<strong>节奏</strong>（一天里分成几段波段）。</li>
+    <li><strong>15 / 5分钟K</strong>：做T<strong>主图</strong>——找具体的<strong>买点 / 卖点</strong>与背离。</li>
+    <li><strong>1分钟K</strong>：<strong>精修</strong>（手快、超短）。噪音大，小白可以少用。</li>
+  </ul>
+
+  <table class="t">
+    <thead><tr><th>周期</th><th>主要用途</th><th>与做T的相关度</th></tr></thead>
+    <tbody>
+      <tr><td>周K</td><td>定大方向 / 结构</td><td><span class="pill m">中</span>（要不要做、顺不顺势）</td></tr>
+      <tr><td>日K</td><td>定位置 / 箱体 / 均线</td><td><span class="pill s">强</span></td></tr>
+      <tr><td>60 分钟K</td><td>日内节奏</td><td><span class="pill m">中</span></td></tr>
+      <tr><td>15 分钟K</td><td>择时 / 背离</td><td><span class="pill s">强</span></td></tr>
+      <tr><td>5 分钟K</td><td>具体买点 / 卖点</td><td><span class="pill s">强</span></td></tr>
+      <tr><td>1 分钟K</td><td>精修 / 超短</td><td><span class="pill m">中</span></td></tr>
+      <tr><td>分时（逐笔）</td><td>日内多空强弱</td><td><span class="pill s">强</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip"><strong>顺势原则：</strong>上升 / 震荡市，正T更顺；
+  <strong>下跌趋势里以反T为主，而且少做</strong>——弱势里硬做正T，最容易“越做越亏”。</div>
+
+  <div class="chart" id="c10a"></div>
+  <div class="chart" id="c10b"></div>
+  <div class="cap"><b>图10 · 日K（上）+ 周K（下）对照。</b>周K 告诉你这是“一段大箱体震荡”（<b>大方向</b>）；
+  日K 告诉你此刻价格落在箱体的<b>低位还是高位</b>（<b>位置</b>）。位置 + 方向，决定你偏正T还是反T。</div>
+
+  <div class="chart" id="c11"></div>
+  <div class="cap"><b>图11 · 小周期找买点（示意）。</b>在日K给出的“低位”区域里，用 15 分钟K 找具体动作：
+  <b>回踩均线 + 缩量 + 重新站上</b>，对应分时上“站稳均价线”——这就是一个<b>低吸参考</b>的组合信号。</div>
+</div>
+
+<!-- ===================== Part 4 ===================== -->
+<div class="card" id="p4">
+  <h2>4. 消息面与大盘 / 板块联动</h2>
+
+  <h3>4.1 消息分四类</h3>
+  <ul>
+    <li><strong>宏观 / 政策</strong>：利率、财政、监管、汇率 → 影响<strong>整个大盘</strong>。</li>
+    <li><strong>行业景气</strong>：订单、涨价、补贴、招标 → 影响<strong>某个板块 / 指数</strong>。</li>
+    <li><strong>个股公告</strong>：业绩预告、增减持、停复牌、重组 → 只影响<strong>那只票</strong>。</li>
+    <li><strong>外围</strong>：隔夜美股、外盘商品/黄金、汇率 → 影响<strong>开盘情绪</strong>（黄金、跨境ETF 尤其敏感）。</li>
+  </ul>
+
+  <h3>4.2 联动逻辑：β + 板块 + α</h3>
+  <p>标的价格 ≈ <strong>大盘（β）＋ 板块强弱 ＋ 个股自身（α）</strong>。</p>
+  <ul>
+    <li><strong>ETF 是一篮子</strong>：看它跟踪的<strong>指数 / 板块</strong>，不要盯单个公司。</li>
+    <li>大盘强 + 板块强 → 标的顺风，<strong>正T 胜率高</strong>；反之逆风，优先反T / 观望。</li>
+  </ul>
+
+  <div class="chart" id="c12"></div>
+  <div class="cap"><b>图12 · 大盘与标的的联动（示意）。</b>两条线大多数时间同涨同跌（<b>β</b>），
+  但也会阶段性跑赢/跑输（<b>α</b>）。做T时先看大盘“顺不顺风”，再看标的自己强不强。</div>
+
+  <div class="warn"><strong>消息怎么用，关键看“位置”：</strong>
+  <ul>
+    <li><strong>高位出利好</strong> → 常是“利好兑现”（见光死）风险，别追。</li>
+    <li><strong>低位出利空</strong> → 可能是“利空出尽”，别恐慌割在最低。</li>
+    <li>做T<strong>不赌消息</strong>，只<strong>防</strong>消息引发的剧烈波动：一大波放量之后，等价格回稳再动手。</li>
+  </ul>
+  </div>
+
+  <h3>4.3 名字相近的板块会“分化”</h3>
+  <p>像“<strong>半导体设备</strong>”和“<strong>科创半导体设备</strong>”这种名字相近的指数，
+  <strong>成分股、编制规则不同，走势会明显不一样</strong>。
+  所以<strong>动手前一定先看清：你的标的到底跟踪哪个指数</strong>，别“名字像”就当成同一回事。</p>
+</div>
+
+<!-- ===================== Part 5 ===================== -->
+<div class="card" id="p5">
+  <h2>5. 先把标的分类，再套方法</h2>
+  <p>任何标的，先归到下面三类之一，再套对应动作——这是通用方法能落到你手上任何东西的关键。</p>
+  <table class="t">
+    <thead><tr><th>类型</th><th>特点</th><th>怎么做</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>T+1 个股</strong><br><span class="muted">60 / 00 开头股票</span></td>
+        <td>波动大、有α，但只能靠底仓，一天一轮</td>
+        <td>重质不重量：位置 + 分时都顺才动，一天最多一轮。</td>
+      </tr>
+      <tr>
+        <td><strong>T+1 股票 / 行业 / 主题 ETF</strong></td>
+        <td>看指数/板块，波动通常小于个股</td>
+        <td>T的差价空间较小，<strong>别指望大差价</strong>；宁可少做、做确定性高的。</td>
+      </tr>
+      <tr>
+        <td><strong>T+0 ETF</strong><br><span class="muted">黄金 / 跨境 / 债券</span></td>
+        <td>可日内来回，灵活</td>
+        <td>最容易手痒 → <strong>用“底仓 + 规则”约束</strong>，别变成频繁交易。</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tip"><strong>三步自问：</strong>
+  ①「它是什么、能不能当天卖？」→ ②「现在在箱体的哪一段位置？」→ ③「今天大盘/板块顺不顺风？」。
+  三问都过了，才谈“今天怎么动”。</div>
+</div>
+
+<!-- ===================== Part 6 ===================== -->
+<div class="card" id="p6">
+  <h2>6. 风险与纪律 + 动手前速查清单</h2>
+
+  <h3>6.1 止损与成本</h3>
+  <ul>
+    <li><strong>止损：</strong>做T做反了，且价格<strong>日线收盘跌破箱底、还不收回</strong> → 承认判断失效、降低预期，
+      <strong>不要死扛</strong>。</li>
+    <li><strong>别忘了成本：</strong>佣金、卖出股票的印花税、以及买卖价差（滑点）。
+      做T差价太小（例如不到 1%）时，往往<strong>白忙一场</strong>。</li>
+  </ul>
+
+  <h3>6.2 纪律</h3>
+  <ul>
+    <li>T仓 ≤ 底仓 <strong>1/3</strong>；一次只做一只、一个方向。</li>
+    <li><strong>不越亏越买</strong>、<strong>不满仓梭哈</strong>、<strong>错了就停手</strong>。</li>
+    <li>把每天的目标从“赚多少钱”，改成“<strong>规则有没有执行到位</strong>”——执行到位，就是赢。
+      <strong>每天赢自己一点点就好。</strong></li>
+  </ul>
+
+  <h3>6.3 动手前速查清单</h3>
+  <ol>
+    <li>它能不能当天卖？（T+0 / T+1）</li>
+    <li>我在箱体的高位还是低位？日K / 周K 的方向是什么？</li>
+    <li>分时价格在均价线上还是下？量价健康吗？</li>
+    <li>今天大盘 / 板块顺不顺风？</li>
+    <li>我打算买多少、卖多少？<strong>错了在哪止损？</strong></li>
+    <li>以上都满足才动手；不满足，<strong>今天就不做</strong>——“不做”也是一种操作。</li>
+  </ol>
+</div>
+
+<!-- ===================== Appendix ===================== -->
+<div class="card" id="app">
+  <h2>附录：术语表</h2>
+  <table class="t">
+    <thead><tr><th>术语</th><th>解释</th></tr></thead>
+    <tbody>
+      <tr><td>底仓 / T仓</td><td>底仓是长期持有的份额（不动）；T仓是今天用来做T的那部分。</td></tr>
+      <tr><td>正T</td><td>先低吸买入，涨上去让卖等量旧底仓（先买后卖）。</td></tr>
+      <tr><td>反T</td><td>先在高位卖底仓，跌下来再接回（先卖后买），底仓数量不变、成本降低。</td></tr>
+      <tr><td>分时图</td><td>当天盘中价格随时间变化的图。</td></tr>
+      <tr><td>均价线（VWAP）</td><td>当天到此刻的成交均价，日内多空分水岭。</td></tr>
+      <tr><td>箱体</td><td>价格在一个区间内反复震荡：上沿为箱顶、下沿为箱底。</td></tr>
+      <tr><td>振幅</td><td>一天中最高价与最低价相对昨收的差距（%），越大越有日内差价。</td></tr>
+      <tr><td>流动性</td><td>买卖是否顺畅，常用日均成交额衡量；越大越不容易卡单、滑点小。</td></tr>
+      <tr><td>支撑 / 压力</td><td>跌不太下去的价格叫支撑（≈箱底），涨不太上去的叫压力（≈箱顶）。</td></tr>
+      <tr><td>量价背离</td><td>价格在涨、量却缩小，上涨缺乏资金支撑。</td></tr>
+      <tr><td>β / α</td><td>β＝随大盘波动的部分；α＝标的自身跑赢/跑输大盘的部分。</td></tr>
+      <tr><td>T+0 / T+1</td><td>当天买能否当天卖：能＝T+0；当天买的次日才能卖＝T+1。</td></tr>
+      <tr><td>滑点</td><td>想成交的价与实际成交价之间的差，来回一次会有成本。</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">本手册仅为复盘观察与教学，不构成买卖建议。</p>
+</div>
+
+<div class="foot">仅用于复盘观察与教学 · 不构成买卖建议 · 图中数据为示意</div>
+
+<script>
+var RED='#ff3b30', GREEN='#34c759';
+var PRICE='#1d1d1f', VWAP='#f5a623', VOL='#c7c7cc', PREV='#86868b', BLUE='#0071e3';
+
+function hhmm(m){var h=Math.floor(m/60),mm=m%60;return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;}
+function dayTimes(){var a=[],i;for(i=0;i<120;i++)a.push(hhmm(570+i));for(i=0;i<120;i++)a.push(hhmm(780+i));return a;}
+function dayLabels(){var a=[],i;for(i=0;i<60;i++)a.push('D'+(i+1));return a;}
+
+function interp(ctrl,n){
+  var out=[],m=ctrl.length,i,k,x0,y0,x1,y1,t;
+  for(i=0;i<n;i++){
+    var x=(n<=1)?0:i/(n-1); k=0;
+    while(k<m-2 && x>ctrl[k+1][0]) k++;
+    x0=ctrl[k][0];y0=ctrl[k][1];x1=ctrl[k+1][0];y1=ctrl[k+1][1];
+    t=(x-x0)/((x1-x0)||1); t=Math.max(0,Math.min(1,t));
+    out.push(y0+(y1-y0)*t);
+  }
+  return out;
+}
+function noise(arr,amp,seed){return arr.map(function(v,i){return v+amp*Math.sin(i*0.6+seed)*0.6+amp*0.4*Math.sin(i*1.7+seed*2);});}
+function genVol(n,seed){var a=[],i;for(i=0;i<n;i++){var op=(i<18)?1.7:1;var cl=(i>n-22)?1.5:1;var base=1+0.35*Math.sin(i/8+seed);a.push(Math.max(0.15,base*op*cl));}return a;}
+function vwapArr(prices,vols){var cp=0,cv=0,out=[],i;for(i=0;i<prices.length;i++){cp+=prices[i]*vols[i];cv+=vols[i];out.push(+(cp/cv).toFixed(3));}return out;}
+
+function marksToData(times,price,marks){
+  return (marks||[]).map(function(mk){
+    return {coord:[times[mk.i], price[mk.i]], value:mk.t,
+      label:{show:true,formatter:mk.t,color:'#fff',fontSize:11,position:mk.pos||'top',
+        backgroundColor:mk.c||BLUE,padding:[3,6],borderRadius:4},
+      itemStyle:{color:mk.c||BLUE}};
+  });
+}
+
+/* 分时图通用 */
+function minuteOpt(title,controls,marks,opts){
+  opts=opts||{};
+  var n=240,times=dayTimes();
+  var price=noise(interp(controls,n),0.05,3);
+  var vol=genVol(n,1);
+  if(opts.volTrend){vol=vol.map(function(v,i){return v*opts.volTrend(i,n);});}
+  var vw=vwapArr(price,vol);
+  var lineData=[{yAxis:100,name:'昨收',lineStyle:{type:'dashed',color:PREV,width:1},
+    label:{formatter:'昨收',color:PREV,position:'insideEndTop'}}];
+  (opts.extraLines||[]).forEach(function(b){lineData.push({yAxis:b.y,name:b.name,
+    lineStyle:{type:'dashed',color:b.c||BLUE,width:1},
+    label:{formatter:b.name,color:b.c||BLUE,position:'insideStartTop'}});});
+  var series=[
+    {name:'均价',type:'line',data:vw,symbol:'none',lineStyle:{color:VWAP,width:1.4},z:2},
+    {name:'价格',type:'line',data:price,symbol:'none',lineStyle:{color:PRICE,width:1.6},z:3,
+      markLine:{symbol:'none',silent:true,data:lineData},
+      markPoint:{symbol:'circle',symbolSize:9,data:marksToData(times,price,marks)}},
+    {name:'成交量',type:'bar',yAxisIndex:1,data:vol,itemStyle:{color:VOL},z:1}
+  ];
+  return {backgroundColor:'transparent',textStyle:{color:'#424245'},
+    title:{text:title,left:'center',textStyle:{fontSize:14,color:'#1d1d1f'}},
+    legend:{top:26,data:['价格','均价','成交量'],textStyle:{color:'#6e6e73'}},
+    tooltip:{trigger:'axis',valueFormatter:function(v){return v;}},
+    grid:{left:62,right:62,top:64,bottom:38},
+    xAxis:{type:'category',data:times,boundaryGap:false,axisLabel:{color:'#86868b',interval:29}},
+    yAxis:[{scale:true,axisLabel:{color:'#86868b'},splitLine:{lineStyle:{color:'#e5e5ea'}}},
+           {scale:true,position:'right',axisLabel:{color:'#86868b'},splitLine:{show:false}}],
+    series:series};
+}
+
+/* K线图通用 */
+function candles(n,ctrl,seed,withMA){
+  var closes=noise(interp(ctrl,n),0.35,seed),ohlc=[],vol=[],i;
+  for(i=0;i<n;i++){
+    var o=(i===0)?closes[0]:closes[i-1], c=closes[i];
+    var hi=Math.max(o,c)+Math.abs(Math.sin(i*1.3+seed))*0.5;
+    var lo=Math.min(o,c)-Math.abs(Math.cos(i*1.1+seed))*0.5;
+    ohlc.push([+o.toFixed(2),+c.toFixed(2),+lo.toFixed(2),+hi.toFixed(2)]);
+    vol.push(+(Math.abs(Math.sin(i*0.5+seed))*1.5+0.6).toFixed(2));
+  }
+  var out={ohlc:ohlc,vol:vol,close:ohlc.map(function(d){return d[1];})};
+  if(withMA){out.ma=[];}
+  return out;
+}
+function ma(arr,n){var out=[],i,j,s;for(i=0;i<arr.length;i++){if(i<n-1){out.push('-');continue;}s=0;for(j=0;j<n;j++)s+=arr[i-j];out.push(+(s/n).toFixed(2));}return out;}
+
+function klineOpt(title,data,box,dates,opt){
+  opt=opt||{};
+  var series=[{name:'K线',type:'candlestick',data:data.ohlc,
+    itemStyle:{color:RED,color0:GREEN,borderColor:RED,borderColor0:GREEN}}];
+  if(opt.ma){series.push({name:'MA5',type:'line',data:ma(data.close,5),symbol:'none',smooth:true,lineStyle:{width:1,color:'#ff2d55'}});
+    series.push({name:'MA15',type:'line',data:ma(data.close,15),symbol:'none',smooth:true,lineStyle:{width:1,color:BLUE}});}
+  var markLines=(box||[]).map(function(b){return {yAxis:b.y,name:b.name,lineStyle:{type:'dashed',color:b.c,width:1},label:{formatter:b.name,color:b.c,position:'insideEndTop'}};});
+  if(markLines.length){series[0].markLine={symbol:'none',silent:true,data:markLines};}
+  if(opt.marks){series[0].markPoint={symbol:'circle',symbolSize:9,data:opt.marks.map(function(mk){
+    return {coord:[dates[mk.i], (mk.o==='low'?data.ohlc[mk.i][2]:data.ohlc[mk.i][3])], value:mk.t,
+      label:{show:true,formatter:mk.t,color:'#fff',fontSize:11,position:'top',backgroundColor:mk.c||BLUE,padding:[3,6],borderRadius:4},
+      itemStyle:{color:mk.c||BLUE}};
+  })};}
+  return {backgroundColor:'transparent',textStyle:{color:'#424245'},
+    title:{text:title,left:'center',textStyle:{fontSize:13,color:'#1d1d1f'}},
+    tooltip:{trigger:'axis',axisPointer:{type:'cross'}},
+    grid:{left:58,right:22,top:40,bottom:30},
+    xAxis:{type:'category',data:dates,boundaryGap:true,axisLabel:{color:'#86868b',interval:opt.iv||4}},
+    yAxis:{scale:true,axisLabel:{color:'#86868b'},splitLine:{lineStyle:{color:'#e5e5ea'}}},
+    series:series};
+}
+
+/* 双线（联动） */
+function dualOpt(title,ctrlA,ctrlB,nameA,nameB){
+  var n=60,xs=dayLabels();
+  var A=noise(interp(ctrlA,n),0.25,1), B=noise(interp(ctrlB,n),0.35,2);
+  var base=A[0]; A=A.map(function(v){return +(v/base*100).toFixed(2);});
+  var base2=B[0]; B=B.map(function(v){return +(v/base2*100).toFixed(2);});
+  return {backgroundColor:'transparent',textStyle:{color:'#424245'},
+    title:{text:title,left:'center',textStyle:{fontSize:14,color:'#1d1d1f'}},
+    legend:{top:26,data:[nameA,nameB],textStyle:{color:'#6e6e73'}},
+    tooltip:{trigger:'axis'},
+    grid:{left:58,right:22,top:64,bottom:38},
+    xAxis:{type:'category',data:xs,boundaryGap:false,axisLabel:{color:'#86868b',interval:9}},
+    yAxis:{scale:true,axisLabel:{color:'#86868b'},splitLine:{lineStyle:{color:'#e5e5ea'}}},
+    series:[{name:nameA,type:'line',data:A,symbol:'none',lineStyle:{color:BLUE,width:1.8}},
+            {name:nameB,type:'line',data:B,symbol:'none',lineStyle:{color:RED,width:1.8}}]};
+}
+
+function render(id,opt){var el=document.getElementById(id);if(el&&opt)echarts.init(el).setOption(opt);}
+var ids=[];
+
+/* 图1 正T：低吸后高抛 */
+ids.push('c1'); render('c1', minuteOpt('图1 · 正T：先低吸、后高抛（示意）',
+  [[0,100],[0.10,99.5],[0.25,97.8],[0.38,98.6],[0.52,100.3],[0.66,101.6],[0.80,100.3],[1,100.0]],
+  [{i:48,t:'低吸买点',c:GREEN,pos:'bottom'},{i:150,t:'卖出旧仓',c:RED,pos:'top'}]));
+
+/* 图2 反T：高抛后低吸 */
+ids.push('c2'); render('c2', minuteOpt('图2 · 反T：先高抛、后接回（示意）',
+  [[0,100],[0.10,100.8],[0.22,101.5],[0.36,100.9],[0.50,100.0],[0.68,98.6],[0.84,99.2],[1,99.6]],
+  [{i:52,t:'高抛底仓',c:RED,pos:'top'},{i:158,t:'回落买回',c:GREEN,pos:'bottom'}]));
+
+/* 图3 分时解剖 */
+ids.push('c3'); render('c3', minuteOpt('图3 · 分时图解剖（示意）',
+  [[0,100],[0.15,100.6],[0.3,99.8],[0.45,100.4],[0.6,101.0],[0.75,100.5],[1,100.9]],
+  [{i:70,t:'价格线在均价线上=强',c:BLUE,pos:'top'}]));
+
+/* 图4 均价线支撑 */
+ids.push('c4'); render('c4', minuteOpt('图4 · 均价线支撑：回踩不破（示意）',
+  [[0,100.2],[0.15,100.1],[0.32,100.05],[0.44,100.5],[0.58,100.35],[0.72,100.9],[0.86,101.2],[1,101.4]],
+  [{i:96,t:'回踩均价不破',c:GREEN,pos:'bottom'}]));
+
+/* 图5 均价线压制 */
+ids.push('c5'); render('c5', minuteOpt('图5 · 均价线压制：反弹被压回（示意）',
+  [[0,100],[0.12,99.2],[0.28,98.4],[0.42,99.0],[0.58,98.5],[0.72,97.9],[0.88,97.6],[1,97.5]],
+  [{i:100,t:'反弹遇均价压回',c:RED,pos:'top'}]));
+
+/* 图6 冲高回落 */
+ids.push('c6'); render('c6', minuteOpt('图6 · 冲高回落（诱多，示意）',
+  [[0,100],[0.07,100.9],[0.18,101.9],[0.30,101.5],[0.50,100.3],[0.70,99.3],[0.88,98.9],[1,98.8]],
+  [{i:44,t:'急拉别追',c:RED,pos:'top'},{i:170,t:'走弱',c:GREEN,pos:'bottom'}]));
+
+/* 图7 探底回升 */
+ids.push('c7'); render('c7', minuteOpt('图7 · 探底回升（由弱转强，示意）',
+  [[0,100],[0.10,99.2],[0.30,97.6],[0.45,98.2],[0.60,99.1],[0.80,100.2],[0.92,100.6],[1,100.5]],
+  [{i:72,t:'杀跌到均价下',c:RED,pos:'bottom'},{i:170,t:'重新站上均价',c:GREEN,pos:'top'}]));
+
+/* 图8 单边下跌 */
+ids.push('c8'); render('c8', minuteOpt('图8 · 单边下跌（弱势，示意）',
+  [[0,100],[0.10,99.3],[0.25,98.4],[0.40,97.6],[0.55,96.9],[0.70,96.3],[0.85,95.8],[1,95.5]],
+  [{i:120,t:'全天弱势，别硬做正T',c:RED,pos:'top'}]));
+
+/* 图9 量价背离 */
+ids.push('c9'); render('c9', minuteOpt('图9 · 量价背离：价升量缩（示意）',
+  [[0,100],[0.2,100.4],[0.4,100.2],[0.6,100.8],[0.8,101.3],[1,101.6]],
+  [{i:150,t:'价升…',c:RED,pos:'top'},{i:165,t:'…但量缩',c:BLUE,pos:'bottom'}],
+  {volTrend:function(i,n){return 1.7*(1-i/n)+0.3;}}));
+
+/* 图10 日K + 周K */
+(function(){
+  var daily=candles(60,[[0,101],[0.22,108],[0.45,104.2],[0.68,108.3],[0.85,104.6],[1,108.6]],4,true);
+  var datesD=[];for(var i=0;i<60;i++)datesD.push('D'+(i+1));
+  render('c10a', klineOpt('图10上 · 日K：箱体内震荡（定“位置”）',daily,
+    [{y:108.5,name:'箱顶',c:'#ff9800'},{y:104.0,name:'箱底',c:'#42a5f5'}],datesD,{ma:true,iv:6}));
+  var wk=candles(40,[[0,95],[0.28,110],[0.55,100],[0.8,108],[1,104]],9,true);
+  var datesW=[];for(var i=0;i<40;i++)datesW.push('W'+(i+1));
+  render('c10b', klineOpt('图10下 · 周K：大箱体震荡（定“方向”）',wk,
+    [{y:110,name:'箱顶',c:'#ff9800'},{y:97,name:'箱底',c:'#42a5f5'}],datesW,{ma:true,iv:5}));
+})();
+
+/* 图11 15分K 找买点 */
+(function(){
+  var m15=candles(48,[[0,100],[0.35,101],[0.55,100.25],[0.72,100.05],[0.86,101.2],[1,101.9]],7,true);
+  var dates=[];for(var i=0;i<48;i++)dates.push('m'+(i+1));
+  render('c11', klineOpt('图11 · 15分钟K：回踩均线 + 缩量 + 重新站上（低吸参考）',m15,
+    [],dates,{ma:true,iv:5,marks:[{i:33,t:'低吸参考',c:GREEN,o:'low'}]}));
+})();
+
+/* 图12 大盘联动 */
+ids.push('c12'); render('c12', dualOpt('图12 · 大盘（蓝）与标的（红）联动（示意）',
+  [[0,100],[0.15,103],[0.3,101.5],[0.5,105],[0.7,104],[0.85,107],[1,106]],
+  [[0,100],[0.15,104],[0.3,102],[0.5,107],[0.7,105.5],[0.85,109],[1,107.5]],
+  '大盘','标的'));
+
+/* 图13 多头占优 */
+ids.push('c13'); render('c13', minuteOpt('图13 · 多头占优（示意）',
+  [[0,100],[0.15,100.5],[0.3,100.25],[0.45,101.0],[0.6,100.75],[0.8,101.6],[1,102.0]],
+  [{i:96,t:'波谷抬高',c:GREEN,pos:'bottom'},{i:200,t:'站稳均线上方',c:BLUE,pos:'top'}]));
+
+/* 图14 空头占优 */
+ids.push('c14'); render('c14', minuteOpt('图14 · 空头占优（示意）',
+  [[0,100],[0.15,99.6],[0.3,99.85],[0.45,99.1],[0.6,99.35],[0.8,98.5],[1,98.0]],
+  [{i:100,t:'波峰降低',c:RED,pos:'top'},{i:200,t:'压在均线下方',c:RED,pos:'bottom'}]));
+
+/* 图15 洗盘：缩量阴跌 + 尾盘急拉 */
+ids.push('c15'); render('c15', minuteOpt('图15 · 洗盘：缩量阴跌 + 尾盘急拉（示意）',
+  [[0,98.0],[0.06,98.6],[0.18,100.4],[0.35,99.9],[0.55,99.4],[0.72,99.0],[0.82,98.9],[0.90,99.6],[0.97,101.3],[1,101.6]],
+  [{i:196,t:'错误卖点(最低)',c:RED,pos:'bottom'},{i:238,t:'尾盘急拉',c:GREEN,pos:'top'}],
+  {extraLines:[{y:98.9,name:'洗盘低点',c:'#42a5f5'}]}));
+
+/* 图16 诱多：假突破 */
+ids.push('c16'); render('c16', minuteOpt('图16 · 诱多：假突破（示意）',
+  [[0,100],[0.12,100.6],[0.25,101.45],[0.33,101.25],[0.50,100.35],[0.65,99.7],[0.85,99.25],[1,99.05]],
+  [{i:60,t:'假突破·诱多',c:RED,pos:'top'},{i:200,t:'快速回落',c:GREEN,pos:'bottom'}],
+  {extraLines:[{y:101,name:'前高/箱顶',c:'#ff9800'}]}));
+
+/* 图17 诱空：假破位 */
+ids.push('c17'); render('c17', minuteOpt('图17 · 诱空：假破位（示意）',
+  [[0,100],[0.12,99.4],[0.28,98.7],[0.40,98.5],[0.55,99.4],[0.70,100.2],[0.85,100.9],[1,101.2]],
+  [{i:96,t:'假破位·诱空',c:RED,pos:'bottom'},{i:210,t:'快速拉回',c:GREEN,pos:'top'}],
+  {extraLines:[{y:99,name:'支撑/前低',c:'#42a5f5'}]}));
+
+/* 图18 尾盘急拉 */
+ids.push('c18'); render('c18', minuteOpt('图18 · 尾盘急拉（示意）',
+  [[0,100],[0.20,100.2],[0.45,99.85],[0.70,99.65],[0.85,99.55],[0.92,100.4],[1,101.0]],
+  [{i:222,t:'尾盘急拉',c:GREEN,pos:'top'}]));
+
+/* 图19 尾盘急砸 */
+ids.push('c19'); render('c19', minuteOpt('图19 · 尾盘急砸（示意）',
+  [[0,100],[0.20,100.3],[0.45,100.1],[0.70,100.35],[0.85,100.45],[0.92,99.6],[1,99.2]],
+  [{i:222,t:'尾盘急砸',c:RED,pos:'bottom'}]));
+
+/* 图20a 次日高开高走 */
+ids.push('c20a'); render('c20a', minuteOpt('图20a · 次日高开高走（示意）',
+  [[0,101.5],[0.15,101.8],[0.30,101.6],[0.50,102.3],[0.70,102.6],[0.85,103.0],[1,103.2]],
+  [{i:18,t:'高开',c:BLUE,pos:'top'},{i:150,t:'回踩不破均价',c:GREEN,pos:'bottom'}]));
+
+/* 图20b 次日高开低走 */
+ids.push('c20b'); render('c20b', minuteOpt('图20b · 次日高开低走（示意）',
+  [[0,101.5],[0.15,101.75],[0.30,101.2],[0.50,100.5],[0.70,100.0],[0.85,99.8],[1,99.6]],
+  [{i:18,t:'高开',c:BLUE,pos:'top'},{i:175,t:'跌破均价·走弱',c:RED,pos:'bottom'}]));
+
+window.addEventListener('resize', function(){
+  ['c1','c2','c3','c4','c5','c6','c7','c8','c9','c11','c12','c13','c14','c15','c16','c17','c18','c19','c20a','c20b'].forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;var c=echarts.getInstanceByDom(el);if(c)c.resize();
+  });
+  var e10=document.getElementById('c10');if(e10){var c0=echarts.getInstanceByDom(e10);if(c0)c0.resize();}
+  ['c10a','c10b'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var c=echarts.getInstanceByDom(el);if(c)c.resize();});
+});
+</script>
+</body>
+</html>
